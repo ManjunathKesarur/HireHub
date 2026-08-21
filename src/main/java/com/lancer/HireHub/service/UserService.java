@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.lancer.HireHub.entity.User;
+import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.UserRepository;
 
 @Service
@@ -17,7 +18,11 @@ public class UserService {
 	
 	
 	public User saveUser(User user) {
-		return userRepository.save(user);
+		if(userRepository.existsByEmail(user.getEmail())) {
+			throw new EmailAlreadyExistException("Email Already exists enter unique email");
+		}else {
+			return userRepository.save(user);
+		}
 	}
 	
 	public List<User> getAllUsers(){
@@ -37,7 +42,7 @@ public class UserService {
 		dbuser.setName(user.getName());
 		dbuser.setEmail(user.getEmail());
 		dbuser.setPassword(user.getPassword());
-		dbuser.setPhone(user.getPhone());
+		dbuser.setPhonenumber(user.getPhonenumber());
 		dbuser.setRole(user.getRole());
 	return userRepository.save(dbuser);
 	}

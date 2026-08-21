@@ -6,4 +6,6 @@ import com.lancer.HireHub.entity.User;
 
 public interface UserRepository extends JpaRepository<User,Integer> {
 
-}
+	
+	boolean existsByEmail(String email); 
+ }

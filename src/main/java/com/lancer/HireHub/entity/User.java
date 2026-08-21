@@ -6,9 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
@@ -18,23 +16,23 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 	
-	@NotBlank(message = "name is required")
+	@NotEmpty(message = "name is required")
 	private String name;
 	
-	@NotBlank(message = "email is required")
+	@NotEmpty(message = "email is required")
 	@Email(message = "incorrect email ")
 	private String email;
 	
 	
-	@NotBlank(message = "password is required")
+	@NotEmpty(message = "password is required")
 	private String password;
 	
-	@NotNull(message = "phone number is required")
-	private String phone;
+	@NotEmpty(message = "phone number is required")
+	private String phonenumber;
 	
-	@NotBlank(message = "role is required")
+	@NotEmpty(message = "role is required")
 	private String role;
 	
 }
