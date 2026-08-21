@@ -3,6 +3,7 @@ package com.lancer.HireHub.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lancer.HireHub.dto.UserDto;
 import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.service.UserService;
 
@@ -26,8 +28,9 @@ public class UserController {
 	
 	
 	@PostMapping
-	public User saveUser(@Valid	 @RequestBody User user) {
-		return userService.saveUser(user);
+	public ResponseEntity<String> saveUser(@Valid	 @RequestBody UserDto userDto) {
+	 
+	return ResponseEntity.ok(userService.saveUser(userDto));
 	}
 	
 	@GetMapping

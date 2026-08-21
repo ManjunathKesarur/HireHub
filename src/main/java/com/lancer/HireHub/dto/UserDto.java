@@ -19,4 +19,7 @@ public class UserDto {
 
 	    @NotEmpty(message = "Role is required")
 	    private String role;
+	    
+	    @NotEmpty(message = "name is required")
+	    private String name;
 }

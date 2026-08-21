@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.lancer.HireHub.dto.UserDto;
 import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.UserRepository;
@@ -17,11 +18,20 @@ public class UserService {
 	UserRepository userRepository;
 	
 	
-	public User saveUser(User user) {
-		if(userRepository.existsByEmail(user.getEmail())) {
+	public String saveUser(UserDto userDto) {
+		if(userRepository.existsByEmail(userDto.getEmail())) {
 			throw new EmailAlreadyExistException("Email Already exists enter unique email");
 		}else {
-			return userRepository.save(user);
+			User user=new User();
+			user.setName(userDto.getName());
+			user.setEmail(userDto.getEmail());
+			user.setPassword(userDto.getPassword());
+			user.setPhonenumber(userDto.getPhonenumber());
+			user.setRole(userDto.getRole());
+			
+		 userRepository.save(user);
+		
+		 return "User Registerd";
 		}
 	}
 	
