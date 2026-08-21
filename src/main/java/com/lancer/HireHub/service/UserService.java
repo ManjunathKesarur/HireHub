@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.lancer.HireHub.dto.UserDto;
@@ -17,6 +18,9 @@ public class UserService {
 	@Autowired
 	UserRepository userRepository;
 	
+	@Autowired
+	PasswordEncoder encoder;
+	
 	
 	public String saveUser(UserDto userDto) {
 		if(userRepository.existsByEmail(userDto.getEmail())) {
@@ -25,7 +29,7 @@ public class UserService {
 			User user=new User();
 			user.setName(userDto.getName());
 			user.setEmail(userDto.getEmail());
-			user.setPassword(userDto.getPassword());
+			user.setPassword(encoder.encode(userDto.getPassword()));
 			user.setPhonenumber(userDto.getPhonenumber());
 			user.setRole(userDto.getRole());
 			
