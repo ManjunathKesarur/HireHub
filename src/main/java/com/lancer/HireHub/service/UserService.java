@@ -73,4 +73,20 @@ public class UserService {
 			return "data not found to delete";
 		}
 	}
+	
+	public String login(String email,String password) {
+		Optional<User> optional	=userRepository.findByEmail(email);
+			
+			if(optional.isPresent()) {
+				User user=optional.get();
+				if(user.getPassword().equals(password)){
+					
+						return "logined";
+					}
+				return "incorret";
+				}
+			else {
+			return "invalid email";
+			}
+	}
 }

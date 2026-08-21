@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lancer.HireHub.dto.UserDto;
@@ -52,4 +53,9 @@ public class UserController {
 	public String deleteById(@PathVariable int id) {
 		return userService.deleteById(id);
 	}
-}
+	
+	@GetMapping("/login")
+	public String login(@RequestParam	String email,@RequestParam	String password) {
+		return userService.login(email, password);
+	}
+	}
