@@ -41,4 +41,8 @@ public class JobApplicationService {
 
 	    return null;
 	}
+	
+	public void deleteApplication(Integer id) {
+	    jobApplicationRepository.deleteById(id);
+	}
 }
