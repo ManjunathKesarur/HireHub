@@ -52,4 +52,9 @@ JobApplicationService applicationService;
 	    applicationService.deleteApplication(id);
 	    return "Application deleted successfully";
 	}
+	
+	@GetMapping("/user/{userid}")
+	public List<JobApplication> getApplicationByUser(@PathVariable	Integer userid) {
+		return applicationService.getApplicationByUser(userid);
+	}
 }
