@@ -3,6 +3,10 @@ package com.lancer.HireHub.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.lancer.HireHub.entity.JobApplication;
@@ -20,8 +24,11 @@ public class JobApplicationService {
 	}
 	
 	
-	public List<JobApplication> getAllApplication(JobApplication application) {
-		return jobApplicationRepository.findAll();
+	public List<JobApplication> getAllApplication(Integer pageNumber,Integer pageSize,String field) {
+		Sort sortz=Sort.by(field).ascending();
+		Pageable pageable= PageRequest.of(pageNumber,pageSize, sortz);
+		Page<JobApplication> pa	=jobApplicationRepository.findAll(pageable);
+		return pa.getContent();
 	}
 	
 	

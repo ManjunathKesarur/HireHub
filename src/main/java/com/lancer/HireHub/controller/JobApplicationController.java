@@ -30,8 +30,11 @@ JobApplicationService applicationService;
 	}
 	
 	@GetMapping
-	public List<JobApplication> getAllApplication(JobApplication application) {
-		return applicationService.getAllApplication(application);
+	public List<JobApplication> getAllApplication(
+		@RequestParam(defaultValue = "0",required = false,value = "pageNumber")	Integer pageNumber,
+			@RequestParam(defaultValue = "5",required = false,value = "pageSize")	Integer pageSize,
+				@RequestParam(defaultValue = "jobid",required = false,value = "field")	String field){
+		return applicationService.getAllApplication(pageNumber,pageSize,field);
 	}
 	
 	@GetMapping("/{id}")
