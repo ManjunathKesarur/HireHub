@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.service.JobSerice;
 
@@ -27,8 +28,8 @@ public class JobController {
 	
 	
 	@PostMapping
-	public String svaeJob(@Valid	@RequestBody Job job) {
-		return jobSerice.svaeJob(job);
+	public String svaeJob(@Valid	@RequestBody JobDto jobDto) {
+		return jobSerice.svaeJob(jobDto);
 	}
 	
 	

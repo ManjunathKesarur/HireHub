@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.JobRepository;
@@ -20,9 +21,19 @@ public class JobSerice {
 	@Autowired
 	JobRepository jobRepository;
 	
-	public String svaeJob(Job job) {
-		jobRepository.save(job);
-		return "Job Added";
+	public String svaeJob(JobDto jobDto) {
+		Job job = new Job();
+
+	    job.setTitle(jobDto.getTitle());
+	    job.setDescription(jobDto.getDescription());
+	    job.setLocation(jobDto.getLocation());
+	    job.setCompany(jobDto.getCompany());
+	    job.setSalary(jobDto.getSalary());
+	    job.setJobType(jobDto.getJobType());
+
+	     jobRepository.save(job);
+	    
+	    return "data inserted";
 	}
 	
 	
