@@ -1,9 +1,17 @@
 package com.lancer.HireHub.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.lancer.HireHub.entity.Job;
+import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.JobRepository;
 
 @Service
@@ -15,5 +23,27 @@ public class JobSerice {
 	public String svaeJob(Job job) {
 		jobRepository.save(job);
 		return "Job Added";
+	}
+	
+	
+	
+	public List<Job> getAllJobs(Integer pageNumber,Integer pageSize,String field){
+		Sort sort=Sort.by(field).ascending();
+		Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+		Page<Job> page	=jobRepository.findAll(pageable);
+	if(page.isEmpty()) {
+		throw new EmailAlreadyExistException("no jobs are found");			/// temprovary i will update later
+	}
+		return page.getContent();
+	}
+	
+	
+	
+	public Job getJobById(Integer id) {
+		Optional<Job> optional= jobRepository.findById(id);
+		if(optional.isPresent()) {
+			return optional.get();
+		}else
+			throw new EmailAlreadyExistException("no data found on the given id");   //same as above
 	}
 }

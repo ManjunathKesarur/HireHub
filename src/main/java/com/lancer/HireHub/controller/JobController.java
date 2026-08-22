@@ -1,9 +1,14 @@
 package com.lancer.HireHub.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lancer.HireHub.entity.Job;
@@ -20,5 +25,21 @@ public class JobController {
 	@PostMapping
 	public String svaeJob(@RequestBody	Job job) {
 		return jobSerice.svaeJob(job);
+	}
+	
+	
+	@GetMapping
+	public List<Job> getAllJobs(
+		@RequestParam(defaultValue = "0",required = false,value = "pageNumber")	Integer pageNumber,
+			@RequestParam(defaultValue = "5",required = false,value = "pageSize")	Integer pageSize,
+				@RequestParam(defaultValue = "title",required = false,value = "field")	String field){
+		
+		return jobSerice.getAllJobs(pageNumber, pageSize, field);
+	}
+	
+	
+	@GetMapping("/{id}")
+	public Job getJobById(@PathVariable	Integer id) {
+		return jobSerice.getJobById(id);
 	}
 }
