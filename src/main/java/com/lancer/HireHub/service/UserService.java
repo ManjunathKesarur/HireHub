@@ -83,7 +83,7 @@ public class UserService {
 					
 						return "logined";
 					}
-				return "incorret";
+				return "incorret password";
 				}
 			else {
 			return "invalid email";
