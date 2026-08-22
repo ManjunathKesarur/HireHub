@@ -24,7 +24,21 @@ public class JobApplicationService {
 		return jobApplicationRepository.findAll();
 	}
 	
+	
 	public JobApplication getApplicationById(Integer id) {
 	    return jobApplicationRepository.findById(id).orElse(null);
+	}
+	
+	
+	public JobApplication updateStatus(Integer id, String status) {
+
+	    JobApplication application = jobApplicationRepository.findById(id).orElse(null);
+
+	    if (application != null) {
+	        application.setStatus(status);
+	        return jobApplicationRepository.save(application);
+	    }
+
+	    return null;
 	}
 }
