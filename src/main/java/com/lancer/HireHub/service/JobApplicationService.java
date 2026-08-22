@@ -23,4 +23,8 @@ public class JobApplicationService {
 	public List<JobApplication> getAllApplication(JobApplication application) {
 		return jobApplicationRepository.findAll();
 	}
+	
+	public JobApplication getApplicationById(Integer id) {
+	    return jobApplicationRepository.findById(id).orElse(null);
+	}
 }
