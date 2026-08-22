@@ -51,4 +51,8 @@ public class JobApplicationService {
 	public List<JobApplication> getApplicationByUser(Integer userid) {
 			return	jobApplicationRepository.findByUserid(userid);
 	}
+	
+	public List<JobApplication> getApplicationByJob(Integer jobid){
+		return jobApplicationRepository.findByJobid(jobid);
+	}
 }

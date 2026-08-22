@@ -57,4 +57,11 @@ JobApplicationService applicationService;
 	public List<JobApplication> getApplicationByUser(@PathVariable	Integer userid) {
 		return applicationService.getApplicationByUser(userid);
 	}
+	
+	
+	@GetMapping("/job/{jobid}")
+	public List<JobApplication> getApplicationByJob(Integer jobid){
+		return applicationService.getApplicationByJob(jobid);
+	}
+	
 }
