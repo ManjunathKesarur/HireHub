@@ -55,4 +55,12 @@ public class JobApplicationService {
 	public List<JobApplication> getApplicationByJob(Integer jobid){
 		return jobApplicationRepository.findByJobid(jobid);
 	}
+	
+	public Boolean hasApplication(Integer jobid) {
+		return jobApplicationRepository.existsByJobid(jobid);
+	}
+	
+	public List<JobApplication> getApplicationByStatus(String status){
+		return jobApplicationRepository.findByStatus(status);
+	}
 }

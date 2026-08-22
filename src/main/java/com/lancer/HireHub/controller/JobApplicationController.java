@@ -60,8 +60,18 @@ JobApplicationService applicationService;
 	
 	
 	@GetMapping("/job/{jobid}")
-	public List<JobApplication> getApplicationByJob(Integer jobid){
+	public List<JobApplication> getApplicationByJob(@PathVariable	Integer jobid){
 		return applicationService.getApplicationByJob(jobid);
+	}
+	
+	@GetMapping("/job/{jobid}/exists")
+	public Boolean hasApplication(@PathVariable	Integer jobid) {
+		return applicationService.hasApplication(jobid);
+	}
+	
+	@GetMapping("/status/{status}")
+	public List<JobApplication> getApplicationByStatus(@PathVariable	String status){
+		return applicationService.getApplicationByStatus(status);
 	}
 	
 }
