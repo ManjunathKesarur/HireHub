@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.service.JobSerice;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/jobs")
@@ -23,7 +26,7 @@ public class JobController {
 	
 	
 	@PostMapping
-	public String svaeJob(@RequestBody	Job job) {
+	public String svaeJob(@Valid	@RequestBody Job job) {
 		return jobSerice.svaeJob(job);
 	}
 	
@@ -41,5 +44,11 @@ public class JobController {
 	@GetMapping("/{id}")
 	public Job getJobById(@PathVariable	Integer id) {
 		return jobSerice.getJobById(id);
+	}
+	
+	
+	@PutMapping("/{id}")
+	public String updateJob(@PathVariable(required = true) Integer id,@RequestBody Job job) {
+		return jobSerice.updateJob(id, job);
 	}
 }

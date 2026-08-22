@@ -31,12 +31,11 @@ public class JobSerice {
 		Sort sort=Sort.by(field).ascending();
 		Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
 		Page<Job> page	=jobRepository.findAll(pageable);
-	if(page.isEmpty()) {
-		throw new EmailAlreadyExistException("no jobs are found");			/// temprovary i will update later
+		if(page.isEmpty()) {
+			throw new EmailAlreadyExistException("no jobs are found");			/// temprovary i will update later
+			}
+				return page.getContent();
 	}
-		return page.getContent();
-	}
-	
 	
 	
 	public Job getJobById(Integer id) {
@@ -46,4 +45,37 @@ public class JobSerice {
 		}else
 			throw new EmailAlreadyExistException("no data found on the given id");   //same as above
 	}
+	
+	
+	public String updateJob(Integer id, Job job) {
+	Optional<Job> optional=jobRepository.findById(id);
+	if(optional.isPresent()) {
+		
+		Job existing=optional.get();
+		
+		if(job.getTitle()!=null)
+			existing.setTitle(job.getTitle());
+		
+		if(job.getDescription()!=null)
+			existing.setDescription(job.getDescription());
+		
+		if(job.getCompany()!=null)
+			existing.setCompany(job.getCompany());
+		
+		if(job.getJobType()!=null)
+			existing.setJobType(job.getJobType());
+		
+		if(job.getLocation()!=null)
+			existing.setLocation(job.getLocation());
+		
+		if(job.getSalary()!=null)
+			existing.setSalary(job.getSalary());
+		
+		jobRepository.save(existing);
+		
+				return "data updated";
+		}else
+				throw new EmailAlreadyExistException("the entered id is wrong");
+	}
+	
 }
