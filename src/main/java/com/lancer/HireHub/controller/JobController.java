@@ -3,6 +3,7 @@ package com.lancer.HireHub.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,5 +51,17 @@ public class JobController {
 	@PutMapping("/{id}")
 	public String updateJob(@PathVariable(required = true) Integer id,@RequestBody Job job) {
 		return jobSerice.updateJob(id, job);
+	}
+	
+	
+	@DeleteMapping("/{id}")
+	public String deleteJob(@PathVariable	Integer id) {
+		return jobSerice.deleteJob(id);
+	}
+	
+	
+	@GetMapping("/search")
+	public List<Job> searchJobs(@RequestParam String title) {
+		return jobSerice.searchJobs(title);
 	}
 }

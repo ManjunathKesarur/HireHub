@@ -78,4 +78,26 @@ public class JobSerice {
 				throw new EmailAlreadyExistException("the entered id is wrong");
 	}
 	
+	
+	public String deleteJob(Integer id) {
+		
+			if(jobRepository.existsById(id)) {
+				jobRepository.deleteById(id);
+					return "data deleted";
+			}else {
+				throw new EmailAlreadyExistException("no data to delete according to id");
+			}
+	}
+	
+	
+	public List<Job> searchJobs(String title) {
+		
+		List<Job> lists=jobRepository.findByTitleContainingIgnoreCase(title);
+		if(lists.isEmpty()) {
+			throw new EmailAlreadyExistException("entered "+title+" is not present");
+		}else {
+			return lists;
+		}	
+	}
+	
 }
