@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.lancer.HireHub.dto.JobClosingDto;
 import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.exception.EmailAlreadyExistException;
@@ -30,6 +31,7 @@ public class JobSerice {
 	    job.setCompany(jobDto.getCompany());
 	    job.setSalary(jobDto.getSalary());
 	    job.setJobType(jobDto.getJobType());
+	    job.setStatus("OPEN");
 
 	     jobRepository.save(job);
 	    
@@ -109,6 +111,17 @@ public class JobSerice {
 		}else {
 			return lists;
 		}	
+	}
+	
+	public Job jobStatusClosing(JobClosingDto jobDto) {
+		Optional<Job>	op=	jobRepository.findByCompanyAndTitleContainingIgnoreCase(jobDto.getCompany(),jobDto.getTitle());
+		if(op.isEmpty()) {
+			throw new EmailAlreadyExistException("not job posting from the "+jobDto.getCompany()+" with the title "+jobDto.getTitle());
+		}else {
+				Job jobs=op.get();
+				jobs.setStatus(jobDto.getStatus());
+				return	jobRepository.save(jobs);
+		}
 	}
 	
 }

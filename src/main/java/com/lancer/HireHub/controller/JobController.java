@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lancer.HireHub.dto.JobClosingDto;
 import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.service.JobSerice;
@@ -65,4 +66,11 @@ public class JobController {
 	public List<Job> searchJobs(@RequestParam String title) {
 		return jobSerice.searchJobs(title);
 	}
+	
+	
+	@PostMapping("/updatestatus")
+	public Job jobStatusClosing(@Valid   @RequestBody	JobClosingDto jobDto) {
+		return jobSerice.jobStatusClosing(jobDto);
+	}
+	
 }
