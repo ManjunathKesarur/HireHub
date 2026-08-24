@@ -33,10 +33,10 @@ public class JobApplicationService {
 	
 	public JobApplication applyjob(JobApplication jobApplication) {
 		
-		if(!userRepository.existsById(jobApplication.getUserid()))
-			throw new EmailAlreadyExistException("User Is Not Registerd Or Invalid UserId : "+jobApplication.getUserid());
+		if(!userRepository.existsById(jobApplication.getUser().getId()))
+			throw new EmailAlreadyExistException("User Is Not Registerd Or Invalid UserId : "+jobApplication.getUser().getId());
 		
-		Optional<Job> jobz=	jobRepository.findById(jobApplication.getJobid());
+		Optional<Job> jobz=	jobRepository.findById(jobApplication.getJob().getId());
 		
 		if(jobz.isPresent()) {
 			Job po=	jobz.get();
@@ -44,8 +44,8 @@ public class JobApplicationService {
 			if(po.getStatus().equalsIgnoreCase("CLOSE"))
 				throw new EmailAlreadyExistException("application is closed");      ////same
 			
-			if(jobApplicationRepository.existsByUseridAndJobid(jobApplication.getUserid(),jobApplication.getJobid()))
-				throw new EmailAlreadyExistException("already applied for this JobId: "+jobApplication.getJobid());
+			if(jobApplicationRepository.existsByUser_IdAndJob_Id(jobApplication.getUser().getId(),jobApplication.getJob().getId()))
+				throw new EmailAlreadyExistException("already applied for this JobId: "+jobApplication.getJob().getId());
 			
 			jobApplication.setStatus("APPLIED");
 			
@@ -54,7 +54,7 @@ public class JobApplicationService {
 		}
 		
 		else {
-			throw new EmailAlreadyExistException("not job found on jobid "+jobApplication.getJobid());   // will change later
+			throw new EmailAlreadyExistException("not job found on jobid "+jobApplication.getJob().getId());   // will change later
 		}
 		
 	}
@@ -92,15 +92,15 @@ public class JobApplicationService {
 	
 	
 	public List<JobApplication> getApplicationByUser(Integer userid) {
-			return	jobApplicationRepository.findByUserid(userid);
+			return	jobApplicationRepository.findByUser_Id(userid);
 	}
 	
 	public List<JobApplication> getApplicationByJob(Integer jobid){
-		return jobApplicationRepository.findByJobid(jobid);
+		return jobApplicationRepository.findByJob_Id(jobid);
 	}
 	
 	public Boolean hasApplication(Integer userid ,Integer jobid) {
-		return jobApplicationRepository.existsByUseridAndJobid(userid,jobid);
+		return jobApplicationRepository.existsByUser_IdAndJob_Id(userid,jobid);
 	}
 	
 	public List<JobApplication> getApplicationByStatus(String status){
