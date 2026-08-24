@@ -1,6 +1,7 @@
 package com.lancer.HireHub.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,8 +10,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.entity.JobApplication;
+import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.JobApplicationRepository;
+import com.lancer.HireHub.repository.JobRepository;
+import com.lancer.HireHub.repository.UserRepository;
 
 @Service
 public class JobApplicationService {
@@ -18,9 +23,40 @@ public class JobApplicationService {
 	@Autowired
 	JobApplicationRepository jobApplicationRepository;
 	
+	@Autowired
+	JobRepository jobRepository;
+	
+	@Autowired
+	UserRepository userRepository;
+	
+	
+	
 	public JobApplication applyjob(JobApplication jobApplication) {
-		jobApplication.setStatus("applied");
-			return jobApplicationRepository.save(jobApplication);
+		
+		if(!userRepository.existsById(jobApplication.getUserid()))
+			throw new EmailAlreadyExistException("User Is Not Registerd Or Invalid UserId : "+jobApplication.getUserid());
+		
+		Optional<Job> jobz=	jobRepository.findById(jobApplication.getJobid());
+		
+		if(jobz.isPresent()) {
+			Job po=	jobz.get();
+			
+			if(po.getStatus().equalsIgnoreCase("CLOSE"))
+				throw new EmailAlreadyExistException("application is closed");      ////same
+			
+			if(jobApplicationRepository.existsByUseridAndJobid(jobApplication.getUserid(),jobApplication.getJobid()))
+				throw new EmailAlreadyExistException("already applied for this JobId: "+jobApplication.getJobid());
+			
+			jobApplication.setStatus("APPLIED");
+			
+		return	jobApplicationRepository.save(jobApplication);
+			
+		}
+		
+		else {
+			throw new EmailAlreadyExistException("not job found on jobid "+jobApplication.getJobid());   // will change later
+		}
+		
 	}
 	
 	
