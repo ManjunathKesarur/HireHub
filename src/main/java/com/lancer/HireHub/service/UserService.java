@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +43,18 @@ public class UserService {
 		}
 	}
 	
-	public List<User> getAllUsers(){
-		return userRepository.findAll();
+	
+	public List<User> getAllUsers(Integer pageNumber,Integer pageSize,String field){
+		Sort sortz=Sort.by(field).ascending();
+		Pageable pageable=PageRequest.of(pageNumber,pageSize,sortz);
+		Page<User> e=	userRepository.findAll(pageable);
+		
+		if(e.isEmpty())
+			throw new EmailAlreadyExistException("No Records Found");
+			
+			return 	e.getContent();
 	}
+	
 	
 	public User getUserById(int id) {
 	Optional<User> ou=	userRepository.findById(id);

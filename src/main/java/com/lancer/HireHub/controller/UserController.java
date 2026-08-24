@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lancer.HireHub.dto.UserDto;
+import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.service.UserService;
 
@@ -35,8 +36,11 @@ public class UserController {
 	}
 	
 	@GetMapping
-	public List<User> getAllUsers(){
-		return userService.getAllUsers();
+	public List<User> getAllUsers(
+			@RequestParam(defaultValue = "0",required = false,value = "pageNumber")	Integer pageNumber,
+				@RequestParam(defaultValue = "5",required = false,value = "pageSize")	Integer pageSize,
+					@RequestParam(defaultValue = "id",required = false,value = "field")	String field){
+		return userService.getAllUsers(pageNumber, pageSize, field);
 	}
 	
 	@GetMapping("{id}")
