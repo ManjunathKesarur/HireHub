@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lancer.HireHub.dto.UserDto;
-import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.service.UserService;
 
@@ -48,8 +48,8 @@ public class UserController {
 		return userService.getUserById(id);
 	}
 	
-	@PutMapping("{pid}")
-	public User updateUser(@PathVariable int pid,@RequestBody User user ) {
+	@PatchMapping("{pid}")
+	public User updateUser(	@PathVariable int pid,@RequestBody User user ) {
 		return userService.updateUser(pid, user);
 	}
 	
@@ -58,7 +58,7 @@ public class UserController {
 		return userService.deleteById(id);
 	}
 	
-	@GetMapping("/login")
+	@PostMapping("/login")
 	public String login(@RequestParam	String email,@RequestParam	String password) {
 		return userService.login(email, password);
 	}

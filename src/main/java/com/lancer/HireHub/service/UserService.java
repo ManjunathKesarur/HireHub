@@ -57,26 +57,45 @@ public class UserService {
 	
 	
 	public User getUserById(int id) {
-	Optional<User> ou=	userRepository.findById(id);
-			User u=ou.get();
-			return u;
+		Optional<User> ou=	userRepository.findById(id);
+			
+		if(ou.isPresent()) 
+		return ou.get();
+	 
+		throw new EmailAlreadyExistException("no data found by the id : "+id);
 	}
 	
-	public User updateUser(int id,User user) {
-	Optional<User> ooe	=userRepository.findById(id);
-		User dbuser=ooe.get();
-	if(dbuser != null) {
-		dbuser.setName(user.getName());
-		dbuser.setEmail(user.getEmail());
-		dbuser.setPassword(user.getPassword());
-		dbuser.setPhonenumber(user.getPhonenumber());
-		dbuser.setRole(user.getRole());
-	return userRepository.save(dbuser);
+	
+	public User updateUser(int id, User user) {
+		
+	    Optional<User> dbusers = userRepository.findById(id);
+	    	
+	    if(dbusers.isPresent()) {
+	 	
+	    	User dbuser = dbusers.get();
+	    if (dbuser != null) {
+
+	        if (user.getName() != null)
+	            dbuser.setName(user.getName());
+
+	        if (user.getEmail() != null)
+	            dbuser.setEmail(user.getEmail());
+
+	        if (user.getPassword() != null)
+	            dbuser.setPassword(encoder.encode(user.getPassword()));
+
+	        if (user.getPhonenumber() != null)
+	            dbuser.setPhonenumber(user.getPhonenumber());
+
+	        if (user.getRole() != null)
+	            dbuser.setRole(user.getRole());
+
+	        return userRepository.save(dbuser);
+	    }
+	    }
+	    throw new EmailAlreadyExistException("No data found on id : "+id+" to update the record");      //will change later
 	}
-	else {
-		return null;
-	}
-	}
+	
 	
 	public String deleteById(int id) {
 		if(userRepository.existsById(id)) {
@@ -92,10 +111,9 @@ public class UserService {
 			
 			if(optional.isPresent()) {
 				User user=optional.get();
-				if(user.getPassword().equals(password)){
-					
-						return "logined";
-					}
+				if(encoder.matches(password, user.getPassword())) {
+				    return "logined";
+				}
 				return "incorret password";
 				}
 			else {
