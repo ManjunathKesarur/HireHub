@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lancer.HireHub.dto.JobClosingDto;
 import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
-import com.lancer.HireHub.service.JobSerice;
+import com.lancer.HireHub.service.JobService;
 
 import jakarta.validation.Valid;
 
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 public class JobController {
 
 	@Autowired
-	JobSerice jobSerice;
+	JobService jobSerice;
 	
 	
 	@PostMapping
@@ -62,15 +63,35 @@ public class JobController {
 	}
 	
 	
-	@GetMapping("/search")
+	@GetMapping("/title")
 	public List<Job> searchJobs(@RequestParam String title) {
 		return jobSerice.searchJobs(title);
 	}
 	
 	
-	@PostMapping("/updatestatus")
+	@PatchMapping("/closing")
 	public Job jobStatusClosing(@Valid   @RequestBody	JobClosingDto jobDto) {
 		return jobSerice.jobStatusClosing(jobDto);
+	}
+	
+	@GetMapping("/status/open")
+	public List<Job> getOpenJobs(){
+		return jobSerice.getOpenJobs();
+	}
+	
+	@GetMapping("/location/{location}")
+	public List<Job> getJobByLocation(@PathVariable String location ){
+		return jobSerice.getJobByLocation(location);
+	}
+	
+	@GetMapping("/salary/{salary}")
+	public List<Job> getJobBySalary(@PathVariable	Double salary){
+		return jobSerice.getJobBySalary(salary);
+	}
+	
+	@GetMapping("/search")
+	public List<Job> getJobByTitleAndLocation(@RequestParam String title,@RequestParam String location){
+		return jobSerice.getJobByTitleAndLocation(title,location);
 	}
 	
 }

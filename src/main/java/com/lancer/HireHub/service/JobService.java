@@ -17,7 +17,7 @@ import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.JobRepository;
 
 @Service
-public class JobSerice {
+public class JobService {
 
 	@Autowired
 	JobRepository jobRepository;
@@ -115,13 +115,35 @@ public class JobSerice {
 	
 	public Job jobStatusClosing(JobClosingDto jobDto) {
 		Optional<Job>	op=	jobRepository.findByCompanyAndTitleContainingIgnoreCase(jobDto.getCompany(),jobDto.getTitle());
-		if(op.isEmpty()) {
-			throw new EmailAlreadyExistException("not job posting from the "+jobDto.getCompany()+" with the title "+jobDto.getTitle());
+		if(op.isPresent()) {
+			
+			Job jobs=op.get();
+			
+			if(jobs.getStatus().equalsIgnoreCase("CLOSED"))
+				throw new EmailAlreadyExistException("Job Is Already Closed");       /// will change later	
+			
+			jobs.setStatus("CLOSED");
+			return	jobRepository.save(jobs);
+			
+			
 		}else {
-				Job jobs=op.get();
-				jobs.setStatus(jobDto.getStatus());
-				return	jobRepository.save(jobs);
+			throw new EmailAlreadyExistException("not job posting from the "+jobDto.getCompany()+" with the title "+jobDto.getTitle());
 		}
 	}
 	
+	public List<Job> getOpenJobs(){
+		return jobRepository.findByStatusIgnoreCase("OPEN");
+	}
+	
+	public List<Job> getJobByLocation(String location){
+		return jobRepository.findByLocationIgnoreCase(location);
+	}
+	
+	public List<Job> getJobBySalary(Double salary){
+		return jobRepository.findBySalaryGreaterThanEqual(salary);
+	}
+	
+	public List<Job> getJobByTitleAndLocation(String title,String location){
+		return jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(title, location);
+	}
 }

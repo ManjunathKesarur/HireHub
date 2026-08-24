@@ -18,7 +18,5 @@ public class JobClosingDto {
 
 	@NotBlank(message = "Description is required")
 	private String company;
-	
-	@NotBlank(message = "Description is required")
-	private String status;
+
 }
