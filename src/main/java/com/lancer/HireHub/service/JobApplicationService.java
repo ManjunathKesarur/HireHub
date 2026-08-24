@@ -41,10 +41,11 @@ public class JobApplicationService {
 		if(jobz.isPresent()) {
 			Job po=	jobz.get();
 			
-			if(po.getStatus().equalsIgnoreCase("CLOSE"))
+			if(po.getStatus().equalsIgnoreCase("CLOSED"))
 				throw new EmailAlreadyExistException("application is closed");      ////same
 			
-			if(jobApplicationRepository.existsByUser_IdAndJob_Id(jobApplication.getUser().getId(),jobApplication.getJob().getId()))
+			if(jobApplicationRepository.existsByUser_IdAndJob_Id(jobApplication.getUser().getId(),
+																	jobApplication.getJob().getId()))
 				throw new EmailAlreadyExistException("already applied for this JobId: "+jobApplication.getJob().getId());
 			
 			jobApplication.setStatus("APPLIED");
