@@ -89,9 +89,19 @@ public class JobController {
 		return jobService.getJobBySalary(salary);
 	}
 	
-	@GetMapping("/search")
+	@GetMapping("/title/location")
 	public List<Job> getJobByTitleAndLocation(@RequestParam String title,@RequestParam String location){
 		return jobService.getJobByTitleAndLocation(title,location);
+	}
+	
+	@GetMapping("/title/company")
+	public List<Job> getJobByTitleAndCompany(@RequestParam	String title,@RequestParam	String company){
+		return jobService.getJobByTitleAndCompany(title, company);
+	}
+	
+	@GetMapping("/jobtype")
+	public List<Job> getJobByJobType(@RequestParam	String jobtype){
+		return	jobService.getJobByJobType(jobtype);
 	}
 	
 }

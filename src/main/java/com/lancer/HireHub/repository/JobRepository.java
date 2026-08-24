@@ -20,4 +20,7 @@ public interface JobRepository extends JpaRepository<Job,Integer>{
 	
 	List<Job> findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(String title,String location);
 
+	List<Job> findByTitleContainingIgnoreCaseAndCompanyContainingIgnoreCase(String title,String company);
+	
+	List<Job> findByJobTypeContainingIgnoreCase(String jobType);
 }
