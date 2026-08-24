@@ -26,12 +26,12 @@ import jakarta.validation.Valid;
 public class JobController {
 
 	@Autowired
-	JobService jobSerice;
+	JobService jobService;
 	
 	
 	@PostMapping
 	public String svaeJob(@Valid	@RequestBody JobDto jobDto) {
-		return jobSerice.svaeJob(jobDto);
+		return jobService.svaeJob(jobDto);
 	}
 	
 	
@@ -41,57 +41,57 @@ public class JobController {
 			@RequestParam(defaultValue = "5",required = false,value = "pageSize")	Integer pageSize,
 				@RequestParam(defaultValue = "title",required = false,value = "field")	String field){
 		
-		return jobSerice.getAllJobs(pageNumber, pageSize, field);
+		return jobService.getAllJobs(pageNumber, pageSize, field);
 	}
 	
 	
 	@GetMapping("/{id}")
 	public Job getJobById(@PathVariable	Integer id) {
-		return jobSerice.getJobById(id);
+		return jobService.getJobById(id);
 	}
 	
 	
 	@PutMapping("/{id}")
 	public String updateJob(@PathVariable(required = true) Integer id,@RequestBody Job job) {
-		return jobSerice.updateJob(id, job);
+		return jobService.updateJob(id, job);
 	}
 	
 	
 	@DeleteMapping("/{id}")
 	public String deleteJob(@PathVariable	Integer id) {
-		return jobSerice.deleteJob(id);
+		return jobService.deleteJob(id);
 	}
 	
 	
 	@GetMapping("/title")
 	public List<Job> searchJobs(@RequestParam String title) {
-		return jobSerice.searchJobs(title);
+		return jobService.searchJobs(title);
 	}
 	
 	
 	@PatchMapping("/closing")
 	public Job jobStatusClosing(@Valid   @RequestBody	JobClosingDto jobDto) {
-		return jobSerice.jobStatusClosing(jobDto);
+		return jobService.jobStatusClosing(jobDto);
 	}
 	
 	@GetMapping("/status/open")
 	public List<Job> getOpenJobs(){
-		return jobSerice.getOpenJobs();
+		return jobService.getOpenJobs();
 	}
 	
 	@GetMapping("/location/{location}")
 	public List<Job> getJobByLocation(@PathVariable String location ){
-		return jobSerice.getJobByLocation(location);
+		return jobService.getJobByLocation(location);
 	}
 	
 	@GetMapping("/salary/{salary}")
 	public List<Job> getJobBySalary(@PathVariable	Double salary){
-		return jobSerice.getJobBySalary(salary);
+		return jobService.getJobBySalary(salary);
 	}
 	
 	@GetMapping("/search")
 	public List<Job> getJobByTitleAndLocation(@RequestParam String title,@RequestParam String location){
-		return jobSerice.getJobByTitleAndLocation(title,location);
+		return jobService.getJobByTitleAndLocation(title,location);
 	}
 	
 }
