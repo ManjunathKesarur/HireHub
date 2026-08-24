@@ -12,7 +12,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
 	
 	List<JobApplication> findByJobid(Integer jobid);
 	
-	Boolean existsByJobid(Integer jobid);
+	boolean existsByUseridAndJobid(Integer userid, Integer jobid);
 	
 	List<JobApplication> findByStatus(String status);
 }

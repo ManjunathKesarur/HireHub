@@ -67,9 +67,9 @@ JobApplicationService applicationService;
 		return applicationService.getApplicationByJob(jobid);
 	}
 	
-	@GetMapping("/job/{jobid}/exists")
-	public Boolean hasApplication(@PathVariable	Integer jobid) {
-		return applicationService.hasApplication(jobid);
+	@GetMapping("/job/{userid}/{jobid}/exists")
+	public Boolean hasApplication(@PathVariable	Integer userid,@PathVariable	Integer jobid) {
+		return applicationService.hasApplication(userid, jobid);
 	}
 	
 	@GetMapping("/status/{status}")

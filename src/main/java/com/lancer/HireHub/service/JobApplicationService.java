@@ -63,8 +63,8 @@ public class JobApplicationService {
 		return jobApplicationRepository.findByJobid(jobid);
 	}
 	
-	public Boolean hasApplication(Integer jobid) {
-		return jobApplicationRepository.existsByJobid(jobid);
+	public Boolean hasApplication(Integer userid ,Integer jobid) {
+		return jobApplicationRepository.existsByUseridAndJobid(userid,jobid);
 	}
 	
 	public List<JobApplication> getApplicationByStatus(String status){
