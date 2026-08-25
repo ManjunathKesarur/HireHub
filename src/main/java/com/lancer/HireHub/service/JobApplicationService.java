@@ -3,6 +3,8 @@ package com.lancer.HireHub.service;
 import java.util.List;
 import java.util.Optional;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -107,8 +109,23 @@ public class JobApplicationService {
 	}
 	
 	
-	public List<JobApplication> getApplicationByUser(Integer userid) {
-			return	jobApplicationRepository.findByUser_Id(userid);
+	public List<JobApplication> getApplicationByUser() {
+		
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+			String credentials = authentication.getName();
+		
+			Optional<User> userinfo=	userRepository.findByEmail(credentials);
+			
+			if(userinfo.isPresent()) {
+					User getuserinfo =userinfo.get();
+					
+					if (jobApplicationRepository.findByUser_Id(getuserinfo.getId()).isEmpty()) {
+							throw new EmailAlreadyExistException("Access denied for admin and recruiter");
+					}
+					
+					return jobApplicationRepository.findByUser_Id(getuserinfo.getId());
+			}else
+				throw new EmailAlreadyExistException("denied");								//will change later
 	}
 	
 	public List<JobApplication> getApplicationByJob(Integer jobid){

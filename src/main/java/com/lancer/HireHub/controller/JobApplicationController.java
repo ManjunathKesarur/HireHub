@@ -57,9 +57,9 @@ JobApplicationService applicationService;
 	    return "Application deleted successfully";
 	}
 	
-	@GetMapping("/user/{userid}")
-	public List<JobApplication> getApplicationByUser(@PathVariable	Integer userid) {
-		return applicationService.getApplicationByUser(userid);
+	@GetMapping("/user")
+	public List<JobApplication> getApplicationByUser() {
+		return applicationService.getApplicationByUser();
 	}
 	
 	
