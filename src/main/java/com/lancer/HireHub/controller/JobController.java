@@ -30,7 +30,7 @@ public class JobController {
 	
 	
 	@PostMapping
-	public String svaeJob(@Valid	@RequestBody JobDto jobDto) {
+	public Job svaeJob(@Valid	@RequestBody JobDto jobDto) {
 		return jobService.svaeJob(jobDto);
 	}
 	
@@ -102,6 +102,11 @@ public class JobController {
 	@GetMapping("/jobtype")
 	public List<Job> getJobByJobType(@RequestParam	String jobtype){
 		return	jobService.getJobByJobType(jobtype);
+	}
+	
+	@GetMapping("user_id/{user_id}")
+	public List<Job> getJobByUser_Id(@PathVariable	Integer user_id){
+		return jobService.getJobByUser_Id(user_id);
 	}
 	
 }

@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import com.lancer.HireHub.dto.JobClosingDto;
 import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
+import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.JobRepository;
+import com.lancer.HireHub.repository.UserRepository;
 
 @Service
 public class JobService {
@@ -22,7 +24,25 @@ public class JobService {
 	@Autowired
 	JobRepository jobRepository;
 	
-	public String svaeJob(JobDto jobDto) {
+	@Autowired
+	UserRepository userRepository;
+	
+	public Job svaeJob(JobDto jobDto) {
+		
+		Optional<User> optional=	userRepository.findById(jobDto.getUserId());
+		
+		if(optional.isPresent()) {
+			
+			
+			User user=	optional.get();
+			
+		if(!user.getRole().equalsIgnoreCase("RECRUITER"))
+			throw new EmailAlreadyExistException("Only Recruiter Can Create Jobs");
+			
+		if(jobRepository.existsByCompanyAndTitleAndUser(jobDto.getCompany(),jobDto.getTitle(),user)) {	
+			throw new EmailAlreadyExistException("Company exists");
+		}
+			
 		Job job = new Job();
 
 	    job.setTitle(jobDto.getTitle());
@@ -32,10 +52,13 @@ public class JobService {
 	    job.setSalary(jobDto.getSalary());
 	    job.setJobType(jobDto.getJobType());
 	    job.setStatus("OPEN");
+	    job.setUser(user);
 
-	     jobRepository.save(job);
+	    return    jobRepository.save(job);
 	    
-	    return "data inserted";
+		}else {
+			throw new EmailAlreadyExistException("No User Id is present to create job");
+		}
 	}
 	
 	
@@ -153,5 +176,9 @@ public class JobService {
 	
 	public List<Job> getJobByJobType(String jobType){
 		return jobRepository.findByJobTypeContainingIgnoreCase(jobType);
+	}
+	
+	public List<Job> getJobByUser_Id(Integer user_id){
+		return jobRepository.findByUser_Id(user_id);
 	}
 }

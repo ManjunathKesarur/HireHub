@@ -24,4 +24,7 @@ public class JobDto {
 
     @NotBlank(message = "Job type is required")
     private String jobType;
+    
+    @NotNull(message = "User id is mandatory")
+    private Integer userId;
 }

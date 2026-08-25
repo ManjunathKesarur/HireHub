@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.lancer.HireHub.entity.Job;
+import com.lancer.HireHub.entity.User;
 
 public interface JobRepository extends JpaRepository<Job,Integer>{
 
@@ -23,4 +24,8 @@ public interface JobRepository extends JpaRepository<Job,Integer>{
 	List<Job> findByTitleContainingIgnoreCaseAndCompanyContainingIgnoreCase(String title,String company);
 	
 	List<Job> findByJobTypeContainingIgnoreCase(String jobType);
+	
+	Boolean existsByCompanyAndTitleAndUser(String company,String title,User user);
+	
+	List<Job> findByUser_Id(Integer user_id);
 }
