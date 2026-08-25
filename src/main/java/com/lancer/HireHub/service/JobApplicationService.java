@@ -8,10 +8,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.lancer.HireHub.dto.JobApplicationDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.entity.JobApplication;
+import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.exception.EmailAlreadyExistException;
 import com.lancer.HireHub.repository.JobApplicationRepository;
 import com.lancer.HireHub.repository.JobRepository;
@@ -31,31 +35,42 @@ public class JobApplicationService {
 	
 	
 	
-	public JobApplication applyjob(JobApplication jobApplication) {
+	public JobApplication applyjob(JobApplicationDto jobApplicationDto) {
 		
-		if(!userRepository.existsById(jobApplication.getUser().getId()))
-			throw new EmailAlreadyExistException("User Is Not Registerd Or Invalid UserId : "+jobApplication.getUser().getId());
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+		String email=	authentication.getName();
+		Optional<User> usez=userRepository.findByEmail(email);
+			User credential =	usez.get();
 		
-		Optional<Job> jobz=	jobRepository.findById(jobApplication.getJob().getId());
+		
+		
+		Optional<Job> jobz=	jobRepository.findById(jobApplicationDto.getJobId());
 		
 		if(jobz.isPresent()) {
-			Job po=	jobz.get();
+			Job jobcredential=	jobz.get();
 			
-			if(po.getStatus().equalsIgnoreCase("CLOSED"))
+			if(jobcredential.getStatus().equalsIgnoreCase("CLOSED"))
 				throw new EmailAlreadyExistException("application is closed");      ////same
 			
-			if(jobApplicationRepository.existsByUser_IdAndJob_Id(jobApplication.getUser().getId(),
-																	jobApplication.getJob().getId()))
-				throw new EmailAlreadyExistException("already applied for this JobId: "+jobApplication.getJob().getId());
+			if(jobApplicationRepository.existsByUser_IdAndJob_Id(credential.getId(),
+																	jobApplicationDto.getJobId()))
+				throw new EmailAlreadyExistException("already applied for this JobId: "+jobApplicationDto.getJobId());
 			
+	
+			JobApplication jobApplication=new JobApplication();
+			
+			jobApplication.setJob(jobcredential);
+			jobApplication.setUser(credential);;
 			jobApplication.setStatus("APPLIED");
+			
+			
 			
 		return	jobApplicationRepository.save(jobApplication);
 			
 		}
 		
 		else {
-			throw new EmailAlreadyExistException("not job found on jobid "+jobApplication.getJob().getId());   // will change later
+			throw new EmailAlreadyExistException("not job found on jobid "+jobApplicationDto.getJobId());   // will change later
 		}
 		
 	}

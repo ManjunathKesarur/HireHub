@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lancer.HireHub.dto.JobApplicationDto;
 import com.lancer.HireHub.entity.JobApplication;
 import com.lancer.HireHub.service.JobApplicationService;
 
@@ -25,8 +26,8 @@ public class JobApplicationController {
 JobApplicationService applicationService;
 	
 	@PostMapping
-	public JobApplication applyjob(@RequestBody	JobApplication jobApplication) {
-		return applicationService.applyjob(jobApplication);
+	public JobApplication applyjob(@RequestBody	JobApplicationDto jobApplicationDto) {
+		return applicationService.applyjob(jobApplicationDto);
 	}
 	
 	@GetMapping
