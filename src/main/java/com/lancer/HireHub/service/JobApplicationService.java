@@ -119,8 +119,12 @@ public class JobApplicationService {
 			if(userinfo.isPresent()) {
 					User getuserinfo =userinfo.get();
 					
-					if (jobApplicationRepository.findByUser_Id(getuserinfo.getId()).isEmpty()) {
+					if (!"JOB_SEEKER".equalsIgnoreCase(getuserinfo.getRole())) {
 							throw new EmailAlreadyExistException("Access denied for admin and recruiter");
+					}
+					
+					if(jobApplicationRepository.findByUser_Id(getuserinfo.getId()).isEmpty()) {
+						throw new EmailAlreadyExistException("the user not applied any job yet");
 					}
 					
 					return jobApplicationRepository.findByUser_Id(getuserinfo.getId());
