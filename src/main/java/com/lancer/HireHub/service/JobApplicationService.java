@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.management.RuntimeErrorException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties.Apiversion.Use;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -62,7 +63,7 @@ public class JobApplicationService {
 			JobApplication jobApplication=new JobApplication();
 			
 			jobApplication.setJob(jobcredential);
-			jobApplication.setUser(credential);;
+			jobApplication.setUser(credential);
 			jobApplication.setStatus("APPLIED");
 			
 			
@@ -133,8 +134,25 @@ public class JobApplicationService {
 	}
 	
 	public List<JobApplication> getApplicationByJob(Integer jobid){
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+			
+			String email = authentication.getName();
+		
+			User loggeduser=userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("User Not found"));
+				
+			Job job = jobRepository.findById(jobid).orElseThrow(()->new EmailAlreadyExistException("Job Not Found"));
+			
+			if(!"RECRUITER".equalsIgnoreCase(loggeduser.getRole()) && !"ADMIN".equalsIgnoreCase(loggeduser.getRole())) {
+				throw new EmailAlreadyExistException("only admin and recruiter");
+			}
+			
+			if("RECRUITER".equalsIgnoreCase(loggeduser.getRole()) && !job.getUser().getId().equals(loggeduser.getId())) {	
+				throw new EmailAlreadyExistException("you can aceess your own job application");
+			}		
+			
 		return jobApplicationRepository.findByJob_Id(jobid);
 	}
+	
 	
 	public Boolean hasApplication(Integer userid ,Integer jobid) {
 		return jobApplicationRepository.existsByUser_IdAndJob_Id(userid,jobid);
