@@ -252,11 +252,4 @@ public class JobApplicationService {
 	}
 	
 	
-	public Boolean hasApplication(Integer userid ,Integer jobid) {
-		return jobApplicationRepository.existsByUser_IdAndJob_Id(userid,jobid);
-	}
-	
-	public List<JobApplication> getApplicationByStatus(String status){
-		return jobApplicationRepository.findByStatus(status);
-	}
 }
