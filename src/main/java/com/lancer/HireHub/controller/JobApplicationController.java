@@ -53,8 +53,8 @@ JobApplicationService applicationService;
 	
 	@DeleteMapping("/{id}")
 	public String deleteApplication(@PathVariable Integer id) {
-	    applicationService.deleteApplication(id);
-	    return "Application deleted successfully";
+	  return applicationService.deleteApplication(id);
+	  
 	}
 	
 	@GetMapping("/user")

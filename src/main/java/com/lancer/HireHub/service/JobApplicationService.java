@@ -3,10 +3,8 @@ package com.lancer.HireHub.service;
 import java.util.List;
 import java.util.Optional;
 
-import javax.management.RuntimeErrorException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties.Apiversion.Use;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -80,6 +78,21 @@ public class JobApplicationService {
 	
 	
 	public List<JobApplication> getAllApplication(Integer pageNumber,Integer pageSize,String field) {
+		
+		Authentication authentication =
+		        SecurityContextHolder.getContext().getAuthentication();
+
+		String email = authentication.getName();
+
+		User loggedUser = userRepository.findByEmail(email)
+		        .orElseThrow(() ->
+		                new EmailAlreadyExistException("User not found"));
+		
+		if (!"ADMIN".equalsIgnoreCase(loggedUser.getRole())) {
+		    throw new EmailAlreadyExistException(
+		            "Only admin can access all applications");
+		}
+		
 		Sort sortz=Sort.by(field).ascending();
 		Pageable pageable= PageRequest.of(pageNumber,pageSize, sortz);
 		Page<JobApplication> pa	=jobApplicationRepository.findAll(pageable);
@@ -88,26 +101,111 @@ public class JobApplicationService {
 	
 	
 	public JobApplication getApplicationById(Integer id) {
-	    return jobApplicationRepository.findById(id).orElse(null);
+			JobApplication application = jobApplicationRepository.findById(id).orElseThrow(()-> new EmailAlreadyExistException("application not found"));
+	
+		Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+		String email=authentication.getName();
+		
+			User loggedUser = userRepository.findByEmail(email).orElseThrow(()-> new EmailAlreadyExistException("User not found"));			
+				
+		if("ADMIN".equalsIgnoreCase(loggedUser.getRole()))
+			return application;
+		
+		if("RECRUITER".equalsIgnoreCase(loggedUser.getRole())) {
+			
+			if(application.getJob().getUser()==null  ||	!application.getJob().getUser().getId().equals(loggedUser.getId())) {
+				throw new EmailAlreadyExistException("You can't access other's application");
+			}
+			return application;
+		}
+		
+		if("JOB_SEEKER".equalsIgnoreCase(loggedUser.getRole())) {
+			
+			if(!application.getUser().getId().equals(loggedUser.getId())) {
+				throw new EmailAlreadyExistException("only your application you can access");
+			}
+			return application;
+		}
+			
+		throw new EmailAlreadyExistException("Access denied");
 	}
+	
 	
 	
 	public JobApplication updateStatus(Integer id, String status) {
 
-	    JobApplication application = jobApplicationRepository.findById(id).orElse(null);
-
-	    if (application != null) {
-	        application.setStatus(status);
-	        return jobApplicationRepository.save(application);
+	    JobApplication application = jobApplicationRepository.findById(id).orElseThrow(()-> new EmailAlreadyExistException("the application is not exists"));
+	    
+	    Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+	    
+	    String email = authentication.getName();
+	    
+	    User loggedUser=userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("enter ceredential is not present in db"));
+	
+	    
+	    if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+	    	application.setStatus(status);
+	    	return jobApplicationRepository.save(application);
 	    }
+	    
+	    if(loggedUser.getRole().equalsIgnoreCase("JOB_SEEKER")) {
+	    	
+	    	throw new EmailAlreadyExistException("Job seeker cant update status");
+	    }
+	    
+	    if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")){
+	    	
+	    	if(	application.getJob().getUser()==null ||	!loggedUser.getId().equals(application.getJob().getUser().getId())  ) {
+	    		throw new EmailAlreadyExistException("you cant check others application");
+	    	}
+	    	
+	    	if ("SELECTED".equalsIgnoreCase(application.getStatus())) {
+	    	    throw new EmailAlreadyExistException("Selected candidate cannot be modified");
+	    	}
 
-	    return null;
+	    	if ("REJECTED".equalsIgnoreCase(application.getStatus())) {
+	    	    throw new EmailAlreadyExistException("Rejected candidate cannot be modified");
+	    	}
+
+	    	if (application.getStatus().equalsIgnoreCase(status)) {
+	    	    throw new EmailAlreadyExistException("Application is already " + status);
+	    	}
+	    	application.setStatus(status);
+	    	return jobApplicationRepository.save(application);
+	    }
+	    
+	    throw new EmailAlreadyExistException("USER NOT FOUND");
+	    
 	}
 	
 	
-	public void deleteApplication(Integer id) {
-	    jobApplicationRepository.deleteById(id);
+	
+	public String deleteApplication(Integer id) {
+		
+		JobApplication application=	jobApplicationRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("USER Not Found"));
+		
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+			String email = authentication.getName();
+			
+	User loggedUser	= userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException(email+" :not found"));
+	
+	if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+		jobApplicationRepository.deleteById(id);
+		return "Deleted successfully";
 	}
+	
+	if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
+		
+				if(application.getJob().getUser()==null	||	!application.getJob().getUser().getId().equals(loggedUser.getId()) ) {
+						throw new EmailAlreadyExistException(" Mr " +email+" You Can't Delete Others Application");
+				}
+		jobApplicationRepository.deleteById(id);
+		return "Deleted The Application "+id;
+	}
+	
+	    throw new EmailAlreadyExistException("ACCESS DENIED");
+	}
+	
 	
 	
 	public List<JobApplication> getApplicationByUser() {
