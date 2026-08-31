@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.lancer.HireHub.dto.JobClosingDto;
@@ -29,7 +31,11 @@ public class JobService {
 	
 	public Job svaeJob(JobDto jobDto) {
 		
-		Optional<User> optional=	userRepository.findById(jobDto.getUserId());
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();	
+		
+		String email=authentication.getName();
+		
+		Optional<User> optional=	userRepository.findByEmail(email);
 		
 		if(optional.isPresent()) {
 			
@@ -57,7 +63,7 @@ public class JobService {
 	    return    jobRepository.save(job);
 	    
 		}else {
-			throw new EmailAlreadyExistException("No User Id is present to create job");
+			throw new EmailAlreadyExistException("Logged-in user not found");
 		}
 	}
 	
