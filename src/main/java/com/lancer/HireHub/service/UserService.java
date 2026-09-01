@@ -97,43 +97,113 @@ public class UserService {
 	
 	public User updateUser(int id, User user) {
 		
-	    Optional<User> dbusers = userRepository.findById(id);
-	    	
-	    if(dbusers.isPresent()) {
-	 	
-	    	User dbuser = dbusers.get();
-	    if (dbuser != null) {
+		
+		Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+		String email = authentication.getName();
+		
+		User loggedUser = userRepository.findByEmail(email).orElseThrow(()-> new EmailAlreadyExistException("user not found"));
+		
+		User dbuser = userRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("the entered id user not found"));
+		
+		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+			if(dbuser != null) {
+				
+				if(user.getName() != null)
+					dbuser.setName(user.getName());
+				
+		        if (user.getEmail() != null)
+		            dbuser.setEmail(user.getEmail());
 
-	        if (user.getName() != null)
-	            dbuser.setName(user.getName());
+		        if (user.getPassword() != null)
+		            dbuser.setPassword(encoder.encode(user.getPassword()));
 
-	        if (user.getEmail() != null)
-	            dbuser.setEmail(user.getEmail());
+		        if (user.getPhonenumber() != null)
+		            dbuser.setPhonenumber(user.getPhonenumber());
 
-	        if (user.getPassword() != null)
-	            dbuser.setPassword(encoder.encode(user.getPassword()));
+		        if (user.getRole() != null)
+		            dbuser.setRole(user.getRole());
 
-	        if (user.getPhonenumber() != null)
-	            dbuser.setPhonenumber(user.getPhonenumber());
+		        return userRepository.save(dbuser);
+			}else {
+				throw new EmailAlreadyExistException("enter the details to update");
+			}
+		}
+		
+		if(loggedUser.getRole().equalsIgnoreCase("JOB_SEEKER") || loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
+			
+			if(!loggedUser.getId().equals(dbuser.getId())) {
+				throw new EmailAlreadyExistException("you cant modify the other's job-seeker/recruiter data");
+			
+			}
+				
+				if(user.getRole() == null) { 
+			
+				if(user.getName() != null)
+					dbuser.setName(user.getName());
+				
+		        if (user.getEmail() != null)
+		            dbuser.setEmail(user.getEmail());
 
-	        if (user.getRole() != null)
-	            dbuser.setRole(user.getRole());
+		        if (user.getPassword() != null)
+		            dbuser.setPassword(encoder.encode(user.getPassword()));
 
-	        return userRepository.save(dbuser);
-	    }
-	    }
+		        if (user.getPhonenumber() != null)
+		            dbuser.setPhonenumber(user.getPhonenumber());
+
+		        if (user.getRole() != null)
+		            dbuser.setRole(loggedUser.getRole());
+
+		        return userRepository.save(dbuser);
+			}else {
+				throw new EmailAlreadyExistException("ONLY ADMIN CAN CHANGE THE ROLE");
+			}
+		}
+	
 	    throw new EmailAlreadyExistException("No data found on id : "+id+" to update the record");      //will change later
 	}
 	
 	
 	public String deleteById(int id) {
-		if(userRepository.existsById(id)) {
-			userRepository.deleteById(id);
-			return "data deleted successfully";
-		}else {
-			return "data not found to delete";
+
+		    Authentication authentication =
+		            SecurityContextHolder.getContext().getAuthentication();
+
+		    String email = authentication.getName();
+
+		    User loggedUser = userRepository.findByEmail(email)
+		            .orElseThrow(() ->
+		                    new EmailAlreadyExistException("User not found"));
+
+		    User userToDelete = userRepository.findById(id)
+		            .orElseThrow(() ->
+		                    new EmailAlreadyExistException("User not found"));
+
+
+		    if (loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+
+		        userRepository.delete(userToDelete);
+
+		        return "User deleted successfully";
+		    }
+
+		
+		    if (loggedUser.getRole().equalsIgnoreCase("RECRUITER")
+		            || loggedUser.getRole().equalsIgnoreCase("JOB_SEEKER")) {
+
+		        if (!loggedUser.getId().equals(userToDelete.getId())) {
+		            throw new EmailAlreadyExistException(
+		                    "You cannot delete another user's account");
+		        }
+
+		        userRepository.delete(userToDelete);
+
+		        return "User deleted successfully";
+		    }
+
+		    throw new EmailAlreadyExistException("Access denied");
 		}
-	}
+	
+	
 	
 	public String login(String email,String password) {
 		Optional<User> optional	=userRepository.findByEmail(email);

@@ -67,6 +67,12 @@ public 	SecurityFilterChain filterChain(HttpSecurity http,
 						 .requestMatchers(HttpMethod.GET,"/users/*")
 						 .hasAnyRole("JOB_SEEKER", "RECRUITER", "ADMIN")
 						 
+						 .requestMatchers(HttpMethod.PATCH,"/users/**")
+						 .hasAnyRole("JOB_SEEKER", "RECRUITER", "ADMIN")
+						 
+						 .requestMatchers(HttpMethod.DELETE,"/users/**")
+						 .hasAnyRole("JOB_SEEKER", "RECRUITER", "ADMIN")
+						 
 						 .requestMatchers("/users/**")
 						 .hasRole("ADMIN")
 						 
