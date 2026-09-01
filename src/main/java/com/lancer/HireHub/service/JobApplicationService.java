@@ -36,6 +36,8 @@ public class JobApplicationService {
 	@Autowired
 	UserRepository userRepository;
 	
+	@Autowired
+	EmailService emailService;
 	
 	
 	public JobApplication applyjob(JobApplicationDto jobApplicationDto) {
@@ -45,8 +47,6 @@ public class JobApplicationService {
 		User credential = userRepository.findByEmail(email)
 		        .orElseThrow(() ->
 		            new ResourceNotFoundException("User not found"));
-		
-		
 		
 		Optional<Job> jobz=	jobRepository.findById(jobApplicationDto.getJobId());
 		
@@ -67,8 +67,6 @@ public class JobApplicationService {
 			jobApplication.setUser(credential);
 			jobApplication.setStatus("APPLIED");
 			
-			
-			
 		return	jobApplicationRepository.save(jobApplication);
 			
 		}
@@ -78,6 +76,7 @@ public class JobApplicationService {
 		}
 		
 	}
+	
 	
 	
 	public List<JobApplication> getAllApplication(Integer pageNumber,Integer pageSize,String field) {
@@ -101,6 +100,7 @@ public class JobApplicationService {
 		Page<JobApplication> pa	=jobApplicationRepository.findAll(pageable);
 		return pa.getContent();
 	}
+	
 	
 	
 	public JobApplication getApplicationById(Integer id) {
@@ -145,7 +145,6 @@ public class JobApplicationService {
 	    
 	    User loggedUser=userRepository.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("enter ceredential is not present in db"));
 	
-	    
 	    if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
 	    	application.setStatus(status);
 	    	return jobApplicationRepository.save(application);
@@ -173,7 +172,20 @@ public class JobApplicationService {
 	    	if (application.getStatus().equalsIgnoreCase(status)) {
 	    	    throw new AlreadyExistsException("Application is already " + status);
 	    	}
+	    	
+	    	if(status.equalsIgnoreCase("SELECTED")) {
 	    	application.setStatus(status);
+	    	
+	    	emailService.mailMessage(application.getUser().getEmail(),
+	    			application.getJob().getCompany(),
+	    			"Congraguation You Are Selected to the "+application.getJob().getTitle()+" role in our company "
+	    			+application.getJob().getCompany());   
+	    	
+	    	return jobApplicationRepository.save(application);
+	    	}
+	    	
+	    	application.setStatus(status);
+	    	
 	    	return jobApplicationRepository.save(application);
 	    }
 	    
