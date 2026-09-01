@@ -30,6 +30,9 @@ public 	SecurityFilterChain filterChain(HttpSecurity http,
 						 .requestMatchers(HttpMethod.GET, "/jobs/**")
 						 .permitAll()
 						 
+						 .requestMatchers(HttpMethod.PATCH, "/jobs/**")
+						 .hasAnyRole("ADMIN", "RECRUITER")
+						 
 						 .requestMatchers(HttpMethod.POST, "/jobs/**")
 						 .hasAnyRole("ADMIN", "RECRUITER")
 
@@ -59,9 +62,6 @@ public 	SecurityFilterChain filterChain(HttpSecurity http,
 						 
 						 
 						 .requestMatchers(HttpMethod.POST, "/users")
-						 .permitAll()
-						 
-						 .requestMatchers("/users/login")
 						 .permitAll()
 						 
 						 .requestMatchers(HttpMethod.GET,"/users/*")

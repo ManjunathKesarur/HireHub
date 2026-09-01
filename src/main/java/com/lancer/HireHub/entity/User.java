@@ -1,5 +1,7 @@
 package com.lancer.HireHub.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,7 +27,7 @@ public class User {
 	@Email(message = "incorrect email ")
 	private String email;
 	
-	
+	@JsonIgnore
 	@NotEmpty(message = "password is required")
 	private String password;
 	
