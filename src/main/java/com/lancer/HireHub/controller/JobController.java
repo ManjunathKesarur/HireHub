@@ -19,10 +19,12 @@ import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.service.JobService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/jobs")
+@Tag(name = "Job Management", description = "APIs for managing jobs")
 public class JobController {
 
 	@Autowired

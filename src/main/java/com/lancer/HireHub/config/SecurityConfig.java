@@ -76,6 +76,13 @@ public 	SecurityFilterChain filterChain(HttpSecurity http,
 						 .requestMatchers("/users/**")
 						 .hasRole("ADMIN")
 						 
+						 
+						 .requestMatchers(
+								    "/swagger-ui/**",
+								    "/v3/api-docs/**")
+						 .permitAll()
+						 
+						 
 						 .anyRequest().authenticated())	
 					
 				 	.httpBasic(Customizer.withDefaults());

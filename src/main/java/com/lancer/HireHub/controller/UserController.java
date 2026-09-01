@@ -18,10 +18,12 @@ import com.lancer.HireHub.dto.UserDto;
 import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.service.UserService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
 
 	@Autowired

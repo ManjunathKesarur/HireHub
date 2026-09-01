@@ -17,8 +17,11 @@ import com.lancer.HireHub.dto.JobApplicationDto;
 import com.lancer.HireHub.entity.JobApplication;
 import com.lancer.HireHub.service.JobApplicationService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/jobapplications")
+@Tag( name = "Job Application Management",description = "APIs for managing job applications")
 public class JobApplicationController {
 
 
