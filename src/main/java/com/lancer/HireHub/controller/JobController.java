@@ -32,8 +32,8 @@ public class JobController {
 	
 	
 	@PostMapping
-	public Job svaeJob(@Valid	@RequestBody JobDto jobDto) {
-		return jobService.svaeJob(jobDto);
+	public Job saveJob(@Valid	@RequestBody JobDto jobDto) {
+		return jobService.saveJob(jobDto);
 	}
 	
 	

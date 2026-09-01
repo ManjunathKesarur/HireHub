@@ -35,7 +35,7 @@ public class JobService {
 	@Autowired
 	JobApplicationRepository jobApplicationRepository;
 	
-	public Job svaeJob(JobDto jobDto) {
+	public Job saveJob(JobDto jobDto) {
 		
 		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();	
 		
