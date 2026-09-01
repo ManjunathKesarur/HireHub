@@ -203,20 +203,4 @@ public class UserService {
 		    throw new EmailAlreadyExistException("Access denied");
 		}
 	
-	
-	
-	public String login(String email,String password) {
-		Optional<User> optional	=userRepository.findByEmail(email);
-			
-			if(optional.isPresent()) {
-				User user=optional.get();
-				if(encoder.matches(password, user.getPassword())) {
-				    return "logined";
-				}
-				return "incorret password";
-				}
-			else {
-			return "invalid email";
-			}
-	}
 }

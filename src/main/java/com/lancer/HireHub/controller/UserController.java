@@ -57,8 +57,4 @@ public class UserController {
 		return userService.deleteById(id);
 	}
 	
-	@PostMapping("/login")
-	public String login(@RequestParam	String email,@RequestParam	String password) {
-		return userService.login(email, password);
-	}
 	}
