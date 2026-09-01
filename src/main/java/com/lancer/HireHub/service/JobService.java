@@ -17,6 +17,7 @@ import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.entity.User;
 import com.lancer.HireHub.exception.EmailAlreadyExistException;
+import com.lancer.HireHub.repository.JobApplicationRepository;
 import com.lancer.HireHub.repository.JobRepository;
 import com.lancer.HireHub.repository.UserRepository;
 
@@ -28,6 +29,9 @@ public class JobService {
 	
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	JobApplicationRepository jobApplicationRepository;
 	
 	public Job svaeJob(JobDto jobDto) {
 		
@@ -90,45 +94,106 @@ public class JobService {
 	
 	
 	public String updateJob(Integer id, Job job) {
-	Optional<Job> optional=jobRepository.findById(id);
-	if(optional.isPresent()) {
+	
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
 		
-		Job existing=optional.get();
+		String email = authentication.getName();
 		
-		if(job.getTitle()!=null)
-			existing.setTitle(job.getTitle());
+		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("user not found"));
 		
-		if(job.getDescription()!=null)
-			existing.setDescription(job.getDescription());
+		Job existing=jobRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("entered id user not found"));
 		
-		if(job.getCompany()!=null)
-			existing.setCompany(job.getCompany());
+		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+			
+			if(job.getTitle()!=null)
+				existing.setTitle(job.getTitle());
+			
+			if(job.getDescription()!=null)
+				existing.setDescription(job.getDescription());
+			
+			if(job.getCompany()!=null)
+				existing.setCompany(job.getCompany());
+			
+			if(job.getJobType()!=null)
+				existing.setJobType(job.getJobType());
+			
+			if(job.getLocation()!=null)
+				existing.setLocation(job.getLocation());
+			
+			if(job.getSalary()!=null)
+				existing.setSalary(job.getSalary());
+			
+			jobRepository.save(existing);
+			
+					return "data updated";
+		}
+		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
+			
+			if(existing.getUser()==null || !existing.getUser().getId().equals(loggedUser.getId()) ) {
+				throw new EmailAlreadyExistException("you cant modify other's application");
+			}
+			
+			if(job.getTitle()!=null)
+				existing.setTitle(job.getTitle());
+			
+			if(job.getDescription()!=null)
+				existing.setDescription(job.getDescription());
+			
+			if(job.getCompany()!=null)
+				existing.setCompany(job.getCompany());
+			
+			if(job.getJobType()!=null)
+				existing.setJobType(job.getJobType());
+			
+			if(job.getLocation()!=null)
+				existing.setLocation(job.getLocation());
+			
+			if(job.getSalary()!=null)
+				existing.setSalary(job.getSalary());
+			
+			jobRepository.save(existing);
+			
+					return "data updated";
+					
+		}
 		
-		if(job.getJobType()!=null)
-			existing.setJobType(job.getJobType());
 		
-		if(job.getLocation()!=null)
-			existing.setLocation(job.getLocation());
-		
-		if(job.getSalary()!=null)
-			existing.setSalary(job.getSalary());
-		
-		jobRepository.save(existing);
-		
-				return "data updated";
-		}else
-				throw new EmailAlreadyExistException("the entered id is wrong");
+		throw new EmailAlreadyExistException("Access denied");
 	}
 	
 	
 	public String deleteJob(Integer id) {
 		
-			if(jobRepository.existsById(id)) {
-				jobRepository.deleteById(id);
-					return "data deleted";
-			}else {
-				throw new EmailAlreadyExistException("no data to delete according to id");
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+		
+		String email = authentication.getName();
+		
+		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("user not found"));
+		
+		Job existing=jobRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("entered id user not found"));
+		
+		if(jobApplicationRepository.existsByJob_Id(id)) {
+			  throw new EmailAlreadyExistException("Cannot delete this job because applications exist. Close the job instead.");
+		}
+		
+		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+			jobRepository.deleteById(id);
+			return "Data Deleted";
+		}
+		
+		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
+			
+			if(existing.getUser()==null || !existing.getUser().getId().equals(loggedUser.getId()) ) {
+				throw new EmailAlreadyExistException("You cannot delete another recruiter's job");
 			}
+			
+			jobRepository.deleteById(id);
+			return "Data Deleted";
+		}
+		
+		
+		
+		throw new EmailAlreadyExistException("Access denied");
 	}
 	
 	
@@ -143,22 +208,41 @@ public class JobService {
 	}
 	
 	public Job jobStatusClosing(JobClosingDto jobDto) {
-		Optional<Job>	op=	jobRepository.findByCompanyAndTitleContainingIgnoreCase(jobDto.getCompany(),jobDto.getTitle());
-		if(op.isPresent()) {
-			
-			Job jobs=op.get();
-			
-			if(jobs.getStatus().equalsIgnoreCase("CLOSED"))
-				throw new EmailAlreadyExistException("Job Is Already Closed");       /// will change later	
-			
-			jobs.setStatus("CLOSED");
-			return	jobRepository.save(jobs);
-			
-			
-		}else {
-			throw new EmailAlreadyExistException("not job posting from the "+jobDto.getCompany()+" with the title "+jobDto.getTitle());
+		
+		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+		
+		String email = authentication.getName();
+		
+		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("user not found"));
+		
+		Job existing=jobRepository.findByCompanyAndTitleContainingIgnoreCase(jobDto.getCompany(),jobDto.getTitle()).orElseThrow(()->new EmailAlreadyExistException("entered id user not found"));
+		
+		
+		if(existing.getStatus().equalsIgnoreCase("CLOSED"))
+			throw new EmailAlreadyExistException("Job Is Already Closed");  
+		
+		
+		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+			existing.setStatus("CLOSED");
+			return jobRepository.save(existing);
 		}
-	}
+		
+		
+		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
+			
+			if(existing.getUser()==null || !existing.getUser().getId().equals(loggedUser.getId()) ) {
+				throw new EmailAlreadyExistException("You cannot close another recruiter's job");
+			}
+			
+			existing.setStatus("CLOSED");
+			return jobRepository.save(existing);
+		}
+		
+		throw new EmailAlreadyExistException("Access denied");
+}
+
+	
+	
 	
 	public List<Job> getOpenJobs(){
 		return jobRepository.findByStatusIgnoreCase("OPEN");

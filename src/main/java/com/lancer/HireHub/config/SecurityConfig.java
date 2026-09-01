@@ -27,8 +27,17 @@ public 	SecurityFilterChain filterChain(HttpSecurity http,
 				 .authenticationProvider(provider(userDetailsService, passwordEncoder))
 				 .authorizeHttpRequests(auth->auth
 						 
-						 .requestMatchers(HttpMethod.GET, "/jobs/**").permitAll()
-						 .requestMatchers("/jobs/**").hasRole("RECRUITER")
+						 .requestMatchers(HttpMethod.GET, "/jobs/**")
+						 .permitAll()
+						 
+						 .requestMatchers(HttpMethod.POST, "/jobs/**")
+						 .hasAnyRole("ADMIN", "RECRUITER")
+
+						 .requestMatchers(HttpMethod.PUT, "/jobs/**")
+						 .hasAnyRole("ADMIN", "RECRUITER")
+
+						 .requestMatchers(HttpMethod.DELETE, "/jobs/**")
+						 .hasAnyRole("ADMIN", "RECRUITER")
 						 
 						 
 						 
