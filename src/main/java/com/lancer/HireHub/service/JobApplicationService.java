@@ -40,8 +40,9 @@ public class JobApplicationService {
 		
 		Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
 		String email=	authentication.getName();
-		Optional<User> usez=userRepository.findByEmail(email);
-			User credential =	usez.get();
+		User credential = userRepository.findByEmail(email)
+		        .orElseThrow(() ->
+		            new EmailAlreadyExistException("User not found"));
 		
 		
 		

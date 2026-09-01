@@ -33,4 +33,18 @@ public class GlobalExceptionHandling {
 		return new ResponseEntity<String>(alreadyExists.getMessage(),HttpStatus.CONFLICT);
 	}
 	
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<String> ResourceNotFound(ResourceNotFoundException notFoundException){
+		return new ResponseEntity<String> (notFoundException.getMessage(),HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<String> AccessDenied(AccessDeniedException deniedException){
+		return new ResponseEntity<String>(deniedException.getMessage(),HttpStatus.FORBIDDEN);
+	}
+	
+	@ExceptionHandler(AlreadyExistsException.class)
+	public ResponseEntity<String> AlreadyExists(AlreadyExistsException alreadyExistsException){
+		return new ResponseEntity<String>(alreadyExistsException.getMessage(),HttpStatus.CONFLICT);
+	}
 }

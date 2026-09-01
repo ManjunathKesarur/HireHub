@@ -1,7 +1,6 @@
 package com.lancer.HireHub.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import com.lancer.HireHub.dto.UserDto;
 import com.lancer.HireHub.entity.User;
-import com.lancer.HireHub.exception.EmailAlreadyExistException;
+import com.lancer.HireHub.exception.AccessDeniedException;
+import com.lancer.HireHub.exception.AlreadyExistsException;
+import com.lancer.HireHub.exception.ResourceNotFoundException;
 import com.lancer.HireHub.repository.UserRepository;
 
 @Service
@@ -31,10 +32,10 @@ public class UserService {
 	public String saveUser(UserDto userDto) {
 		
 		if(userRepository.existsByEmail(userDto.getEmail())) {
-			throw new EmailAlreadyExistException("Email Already exists enter unique email");
+			throw new AlreadyExistsException("Email Already exists enter unique email");
 		}
 		if(!userDto.getRole().equalsIgnoreCase("JOB_SEEKER") && !userDto.getRole().equalsIgnoreCase("RECRUITER")) {
-			throw new EmailAlreadyExistException("only JOB_SEEKER  and  RECRUITER  can register");
+			throw new AccessDeniedException("only JOB_SEEKER  and  RECRUITER  can register");
 		}
 		
 			User user=new User();
@@ -49,13 +50,14 @@ public class UserService {
 	}
 	
 	
+	
 	public List<User> getAllUsers(Integer pageNumber,Integer pageSize,String field){
 		Sort sortz=Sort.by(field).ascending();
 		Pageable pageable=PageRequest.of(pageNumber,pageSize,sortz);
 		Page<User> e=	userRepository.findAll(pageable);
 		
 		if(e.isEmpty())
-			throw new EmailAlreadyExistException("No Records Found");
+			throw new ResourceNotFoundException("No Records Found");
 			
 			return 	e.getContent();
 	}
@@ -66,9 +68,9 @@ public class UserService {
 		Authentication authentication =SecurityContextHolder.getContext().getAuthentication();
 		String email = authentication.getName();
 		
-		User loggedUser =userRepository.findByEmail(email).orElseThrow(()-> new EmailAlreadyExistException("the user not found"));
+		User loggedUser =userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("the user not found"));
 	
-		User user=userRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("the user not found"));
+		User user=userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("the user not found"));
 		
 		
 		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
@@ -78,19 +80,19 @@ public class UserService {
 		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
 			
 			if(!loggedUser.getId().equals(user.getId())) {
-				throw new EmailAlreadyExistException("you can't access others details as you are a :"+loggedUser.getRole());
+				throw new AccessDeniedException("you can't access others details as you are a :"+loggedUser.getRole());
 			}
 			return user;
 		}
 		
 		if(loggedUser.getRole().equalsIgnoreCase("JOB_SEEKER")) {
 			if(!loggedUser.getId().equals(user.getId())) {
-				throw new EmailAlreadyExistException("you can't access others details as you are a :"+loggedUser.getRole());
+				throw new AccessDeniedException("you can't access others details as you are a :"+loggedUser.getRole());
 			}
 			return user;
 		}
 		
-		throw new EmailAlreadyExistException("access denied");
+		throw new AccessDeniedException("access denied");
 	}
 	
 	
@@ -101,9 +103,9 @@ public class UserService {
 		Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
 		String email = authentication.getName();
 		
-		User loggedUser = userRepository.findByEmail(email).orElseThrow(()-> new EmailAlreadyExistException("user not found"));
+		User loggedUser = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("user not found"));
 		
-		User dbuser = userRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("the entered id user not found"));
+		User dbuser = userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("the entered id user not found"));
 		
 		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
 			if(dbuser != null) {
@@ -124,15 +126,13 @@ public class UserService {
 		            dbuser.setRole(user.getRole());
 
 		        return userRepository.save(dbuser);
-			}else {
-				throw new EmailAlreadyExistException("enter the details to update");
 			}
 		}
 		
 		if(loggedUser.getRole().equalsIgnoreCase("JOB_SEEKER") || loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
 			
 			if(!loggedUser.getId().equals(dbuser.getId())) {
-				throw new EmailAlreadyExistException("you cant modify the other's job-seeker/recruiter data");
+				throw new AccessDeniedException("you cant modify the other's job-seeker/recruiter data");
 			
 			}
 				
@@ -155,11 +155,11 @@ public class UserService {
 
 		        return userRepository.save(dbuser);
 			}else {
-				throw new EmailAlreadyExistException("ONLY ADMIN CAN CHANGE THE ROLE");
+				throw new AccessDeniedException("ONLY ADMIN CAN CHANGE THE ROLE");
 			}
 		}
 	
-	    throw new EmailAlreadyExistException("No data found on id : "+id+" to update the record");      //will change later
+	    throw new AccessDeniedException("AccessDenied");     
 	}
 	
 	
@@ -172,11 +172,11 @@ public class UserService {
 
 		    User loggedUser = userRepository.findByEmail(email)
 		            .orElseThrow(() ->
-		                    new EmailAlreadyExistException("User not found"));
+		                    new ResourceNotFoundException("User not found"));
 
 		    User userToDelete = userRepository.findById(id)
 		            .orElseThrow(() ->
-		                    new EmailAlreadyExistException("User not found"));
+		                    new ResourceNotFoundException("User not found"));
 
 
 		    if (loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
@@ -191,7 +191,7 @@ public class UserService {
 		            || loggedUser.getRole().equalsIgnoreCase("JOB_SEEKER")) {
 
 		        if (!loggedUser.getId().equals(userToDelete.getId())) {
-		            throw new EmailAlreadyExistException(
+		            throw new AccessDeniedException(
 		                    "You cannot delete another user's account");
 		        }
 
@@ -200,7 +200,7 @@ public class UserService {
 		        return "User deleted successfully";
 		    }
 
-		    throw new EmailAlreadyExistException("Access denied");
+		    throw new AccessDeniedException("Access denied");
 		}
 	
 }
