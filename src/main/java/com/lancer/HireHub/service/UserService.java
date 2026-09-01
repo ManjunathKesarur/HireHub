@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +29,14 @@ public class UserService {
 	
 	
 	public String saveUser(UserDto userDto) {
+		
 		if(userRepository.existsByEmail(userDto.getEmail())) {
 			throw new EmailAlreadyExistException("Email Already exists enter unique email");
-		}else {
+		}
+		if(!userDto.getRole().equalsIgnoreCase("JOB_SEEKER") && !userDto.getRole().equalsIgnoreCase("RECRUITER")) {
+			throw new EmailAlreadyExistException("only JOB_SEEKER  and  RECRUITER  can register");
+		}
+		
 			User user=new User();
 			user.setName(userDto.getName());
 			user.setEmail(userDto.getEmail());
@@ -38,9 +45,7 @@ public class UserService {
 			user.setRole(userDto.getRole());
 			
 		 userRepository.save(user);
-		
 		 return "User Registerd";
-		}
 	}
 	
 	
@@ -57,13 +62,37 @@ public class UserService {
 	
 	
 	public User getUserById(int id) {
-		Optional<User> ou=	userRepository.findById(id);
+	
+		Authentication authentication =SecurityContextHolder.getContext().getAuthentication();
+		String email = authentication.getName();
+		
+		User loggedUser =userRepository.findByEmail(email).orElseThrow(()-> new EmailAlreadyExistException("the user not found"));
+	
+		User user=userRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("the user not found"));
+		
+		
+		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+			return user; 
+		}
+		
+		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
 			
-		if(ou.isPresent()) 
-		return ou.get();
-	 
-		throw new EmailAlreadyExistException("no data found by the id : "+id);
+			if(!loggedUser.getId().equals(user.getId())) {
+				throw new EmailAlreadyExistException("you can't access others details as you are a :"+loggedUser.getRole());
+			}
+			return user;
+		}
+		
+		if(loggedUser.getRole().equalsIgnoreCase("JOB_SEEKER")) {
+			if(!loggedUser.getId().equals(user.getId())) {
+				throw new EmailAlreadyExistException("you can't access others details as you are a :"+loggedUser.getRole());
+			}
+			return user;
+		}
+		
+		throw new EmailAlreadyExistException("access denied");
 	}
+	
 	
 	
 	public User updateUser(int id, User user) {

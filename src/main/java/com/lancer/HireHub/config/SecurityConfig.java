@@ -58,9 +58,17 @@ public 	SecurityFilterChain filterChain(HttpSecurity http,
 						 
 						 
 						 
-						 .requestMatchers(HttpMethod.POST, "/users").permitAll()
-						 .requestMatchers("/users/login").permitAll()
-						 .requestMatchers("/users/**").hasRole("ADMIN")
+						 .requestMatchers(HttpMethod.POST, "/users")
+						 .permitAll()
+						 
+						 .requestMatchers("/users/login")
+						 .permitAll()
+						 
+						 .requestMatchers(HttpMethod.GET,"/users/*")
+						 .hasAnyRole("JOB_SEEKER", "RECRUITER", "ADMIN")
+						 
+						 .requestMatchers("/users/**")
+						 .hasRole("ADMIN")
 						 
 						 .anyRequest().authenticated())	
 					

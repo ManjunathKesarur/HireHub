@@ -71,27 +71,7 @@ public class JobService {
 		}
 	}
 	
-	
-	
-	public List<Job> getAllJobs(Integer pageNumber,Integer pageSize,String field){
-		Sort sort=Sort.by(field).ascending();
-		Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
-		Page<Job> page	=jobRepository.findAll(pageable);
-		if(page.isEmpty()) {
-			throw new EmailAlreadyExistException("no jobs are found");			/// temprovary i will update later
-			}
-				return page.getContent();
-	}
-	
-	
-	public Job getJobById(Integer id) {
-		Optional<Job> optional= jobRepository.findById(id);
-		if(optional.isPresent()) {
-			return optional.get();
-		}else
-			throw new EmailAlreadyExistException("no data found on the given id");   //same as above
-	}
-	
+		
 	
 	public String updateJob(Integer id, Job job) {
 	
@@ -191,21 +171,10 @@ public class JobService {
 			return "Data Deleted";
 		}
 		
-		
-		
 		throw new EmailAlreadyExistException("Access denied");
 	}
 	
-	
-	public List<Job> searchJobs(String title) {
-		
-		List<Job> lists=jobRepository.findByTitleContainingIgnoreCase(title);
-		if(lists.isEmpty()) {
-			throw new EmailAlreadyExistException("entered "+title+" is not present");
-		}else {
-			return lists;
-		}	
-	}
+
 	
 	public Job jobStatusClosing(JobClosingDto jobDto) {
 		
@@ -239,8 +208,70 @@ public class JobService {
 		}
 		
 		throw new EmailAlreadyExistException("Access denied");
-}
+    }
 
+	
+	
+	public List<Job> getJobByUser_Id(Integer user_id) {
+
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+	    String email = authentication.getName();
+
+	    User loggedUser = userRepository.findByEmail(email)
+	            .orElseThrow(() ->
+	                    new EmailAlreadyExistException("User not found"));
+
+	    if (loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
+
+	        return jobRepository.findByUser_Id(user_id);
+	    }
+	    if (loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
+
+	        if (!loggedUser.getId().equals(user_id)) {
+
+	            throw new EmailAlreadyExistException(
+	                    "You can view only your own jobs");
+	        }
+
+	        return jobRepository.findByUser_Id(user_id);
+	    }
+
+	    throw new EmailAlreadyExistException("Access denied");
+	}
+	
+	
+	
+	public List<Job> getAllJobs(Integer pageNumber,Integer pageSize,String field){
+		Sort sort=Sort.by(field).ascending();
+		Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+		Page<Job> page	=jobRepository.findAll(pageable);
+		if(page.isEmpty()) {
+			throw new EmailAlreadyExistException("no jobs are found");			/// temprovary i will update later
+			}
+				return page.getContent();
+	}
+	
+	
+	public Job getJobById(Integer id) {
+		Optional<Job> optional= jobRepository.findById(id);
+		if(optional.isPresent()) {
+			return optional.get();
+		}else
+			throw new EmailAlreadyExistException("no data found on the given id");   //same as above
+	}
+	
+	
+	
+	public List<Job> searchJobs(String title) {
+		
+		List<Job> lists=jobRepository.findByTitleContainingIgnoreCase(title);
+		if(lists.isEmpty()) {
+			throw new EmailAlreadyExistException("entered "+title+" is not present");
+		}else {
+			return lists;
+		}	
+	}
 	
 	
 	
@@ -268,7 +299,4 @@ public class JobService {
 		return jobRepository.findByJobTypeContainingIgnoreCase(jobType);
 	}
 	
-	public List<Job> getJobByUser_Id(Integer user_id){
-		return jobRepository.findByUser_Id(user_id);
-	}
 }
