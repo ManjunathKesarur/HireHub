@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.lancer.HireHub.entity.User;
-import com.lancer.HireHub.exception.EmailAlreadyExistException;
+import com.lancer.HireHub.exception.AccessDeniedException;
 import com.lancer.HireHub.repository.UserRepository;
 
 @Service
@@ -34,7 +34,7 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 				.build();
 		
 		}else {
-			throw new EmailAlreadyExistException("ACCESS DENIED");
+			throw new AccessDeniedException("ACCESS DENIED");
 		}
 	}
 

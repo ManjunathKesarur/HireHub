@@ -27,12 +27,6 @@ public class GlobalExceptionHandling {
 		return new ResponseEntity<Map<String, String>>(map,HttpStatus.BAD_REQUEST);
 	}
 	
-	
-	@ExceptionHandler(EmailAlreadyExistException.class)
-	public ResponseEntity<String> emailAlreadyExistsException(EmailAlreadyExistException alreadyExists) {
-		return new ResponseEntity<String>(alreadyExists.getMessage(),HttpStatus.CONFLICT);
-	}
-	
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<String> ResourceNotFound(ResourceNotFoundException notFoundException){
 		return new ResponseEntity<String> (notFoundException.getMessage(),HttpStatus.NOT_FOUND);

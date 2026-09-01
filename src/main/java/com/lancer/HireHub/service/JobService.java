@@ -16,7 +16,9 @@ import com.lancer.HireHub.dto.JobClosingDto;
 import com.lancer.HireHub.dto.JobDto;
 import com.lancer.HireHub.entity.Job;
 import com.lancer.HireHub.entity.User;
-import com.lancer.HireHub.exception.EmailAlreadyExistException;
+import com.lancer.HireHub.exception.AccessDeniedException;
+import com.lancer.HireHub.exception.AlreadyExistsException;
+import com.lancer.HireHub.exception.ResourceNotFoundException;
 import com.lancer.HireHub.repository.JobApplicationRepository;
 import com.lancer.HireHub.repository.JobRepository;
 import com.lancer.HireHub.repository.UserRepository;
@@ -47,10 +49,10 @@ public class JobService {
 			User user=	optional.get();
 			
 		if(!user.getRole().equalsIgnoreCase("RECRUITER"))
-			throw new EmailAlreadyExistException("Only Recruiter Can Create Jobs");
+			throw new AccessDeniedException("Only Recruiter Can Create Jobs");
 			
 		if(jobRepository.existsByCompanyAndTitleAndUser(jobDto.getCompany(),jobDto.getTitle(),user)) {	
-			throw new EmailAlreadyExistException("Company exists");
+			throw new AlreadyExistsException("Company exists");
 		}
 			
 		Job job = new Job();
@@ -67,7 +69,7 @@ public class JobService {
 	    return    jobRepository.save(job);
 	    
 		}else {
-			throw new EmailAlreadyExistException("Logged-in user not found");
+			throw new ResourceNotFoundException("Logged-in user not found");
 		}
 	}
 	
@@ -79,9 +81,9 @@ public class JobService {
 		
 		String email = authentication.getName();
 		
-		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("user not found"));
+		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("user not found"));
 		
-		Job existing=jobRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("entered id user not found"));
+		Job existing=jobRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("entered id user not found"));
 		
 		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
 			
@@ -110,7 +112,7 @@ public class JobService {
 		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
 			
 			if(existing.getUser()==null || !existing.getUser().getId().equals(loggedUser.getId()) ) {
-				throw new EmailAlreadyExistException("you cant modify other's application");
+				throw new AccessDeniedException("you cant modify other's application");
 			}
 			
 			if(job.getTitle()!=null)
@@ -138,7 +140,7 @@ public class JobService {
 		}
 		
 		
-		throw new EmailAlreadyExistException("Access denied");
+		throw new AccessDeniedException("Access denied");
 	}
 	
 	
@@ -148,12 +150,12 @@ public class JobService {
 		
 		String email = authentication.getName();
 		
-		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("user not found"));
+		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("user not found"));
 		
-		Job existing=jobRepository.findById(id).orElseThrow(()->new EmailAlreadyExistException("entered id user not found"));
+		Job existing=jobRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("entered id user not found"));
 		
 		if(jobApplicationRepository.existsByJob_Id(id)) {
-			  throw new EmailAlreadyExistException("Cannot delete this job because applications exist. Close the job instead.");
+			  throw new AlreadyExistsException("Cannot delete this job because applications exist. Close the job instead.");
 		}
 		
 		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
@@ -164,14 +166,14 @@ public class JobService {
 		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
 			
 			if(existing.getUser()==null || !existing.getUser().getId().equals(loggedUser.getId()) ) {
-				throw new EmailAlreadyExistException("You cannot delete another recruiter's job");
+				throw new AccessDeniedException("You cannot delete another recruiter's job");
 			}
 			
 			jobRepository.deleteById(id);
 			return "Data Deleted";
 		}
 		
-		throw new EmailAlreadyExistException("Access denied");
+		throw new AccessDeniedException("Access denied");
 	}
 	
 
@@ -182,13 +184,15 @@ public class JobService {
 		
 		String email = authentication.getName();
 		
-		User loggedUser = userRepository.findByEmail(email).orElseThrow(()->new EmailAlreadyExistException("user not found"));
+		User loggedUser = userRepository.findByEmail(email)
+				.orElseThrow(()->new ResourceNotFoundException("user not found"));
 		
-		Job existing=jobRepository.findByCompanyAndTitleContainingIgnoreCase(jobDto.getCompany(),jobDto.getTitle()).orElseThrow(()->new EmailAlreadyExistException("entered id user not found"));
+		Job existing=jobRepository.findByCompanyAndTitleContainingIgnoreCase(jobDto.getCompany(),jobDto.getTitle())
+				.orElseThrow(()->new ResourceNotFoundException("entered id user not found"));
 		
 		
 		if(existing.getStatus().equalsIgnoreCase("CLOSED"))
-			throw new EmailAlreadyExistException("Job Is Already Closed");  
+			throw new AlreadyExistsException("Job Is Already Closed");  
 		
 		
 		if(loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
@@ -200,14 +204,14 @@ public class JobService {
 		if(loggedUser.getRole().equalsIgnoreCase("RECRUITER")) {
 			
 			if(existing.getUser()==null || !existing.getUser().getId().equals(loggedUser.getId()) ) {
-				throw new EmailAlreadyExistException("You cannot close another recruiter's job");
+				throw new AccessDeniedException("You cannot close another recruiter's job");
 			}
 			
 			existing.setStatus("CLOSED");
 			return jobRepository.save(existing);
 		}
 		
-		throw new EmailAlreadyExistException("Access denied");
+		throw new AccessDeniedException("Access denied");
     }
 
 	
@@ -220,7 +224,7 @@ public class JobService {
 
 	    User loggedUser = userRepository.findByEmail(email)
 	            .orElseThrow(() ->
-	                    new EmailAlreadyExistException("User not found"));
+	                    new ResourceNotFoundException("User not found"));
 
 	    if (loggedUser.getRole().equalsIgnoreCase("ADMIN")) {
 
@@ -230,14 +234,14 @@ public class JobService {
 
 	        if (!loggedUser.getId().equals(user_id)) {
 
-	            throw new EmailAlreadyExistException(
+	            throw new AccessDeniedException(
 	                    "You can view only your own jobs");
 	        }
 
 	        return jobRepository.findByUser_Id(user_id);
 	    }
 
-	    throw new EmailAlreadyExistException("Access denied");
+	    throw new AccessDeniedException("Access denied");
 	}
 	
 	
@@ -247,7 +251,7 @@ public class JobService {
 		Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
 		Page<Job> page	=jobRepository.findAll(pageable);
 		if(page.isEmpty()) {
-			throw new EmailAlreadyExistException("no jobs are found");			/// temprovary i will update later
+			throw new ResourceNotFoundException("no jobs are found");			
 			}
 				return page.getContent();
 	}
@@ -258,7 +262,7 @@ public class JobService {
 		if(optional.isPresent()) {
 			return optional.get();
 		}else
-			throw new EmailAlreadyExistException("no data found on the given id");   //same as above
+			throw new ResourceNotFoundException("no data found on the given id"); 
 	}
 	
 	
@@ -267,7 +271,7 @@ public class JobService {
 		
 		List<Job> lists=jobRepository.findByTitleContainingIgnoreCase(title);
 		if(lists.isEmpty()) {
-			throw new EmailAlreadyExistException("entered "+title+" is not present");
+			throw new ResourceNotFoundException("entered "+title+" is not present");
 		}else {
 			return lists;
 		}	
